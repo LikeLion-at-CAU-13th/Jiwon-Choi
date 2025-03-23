@@ -6,4 +6,5 @@ urlpatterns = [
     path('', django_review, name = 'django_review'),
     #예를 들어, 'books' 경로로 접근하면 book_list를 호출하려면
     #path("books/", book_list),
+    path('page', index, name='my-page'),
 ]

@@ -10,3 +10,6 @@ def django_review(request):
             'status' : 200,
             'data' : "250323 2nd session review"
         })
+    
+def index(request):
+    return render(request, 'index.html')
