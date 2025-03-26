@@ -57,6 +57,7 @@ DJANGO_APPS = [
 PROJECT_APPS = [
     #여기에 만든 APP들을 추가 작성
     'posts',
+    "accounts",
 
 ]
 
@@ -149,3 +150,6 @@ STATIC_URL = 'static/'
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+#여기 추가함
+AUTH_USER_MODEL = 'accounts.User'
