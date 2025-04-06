@@ -179,3 +179,32 @@ def post_detail(request, post_id):
                 'message': '게시글 삭제 성공',
                 'data': None
         })
+    
+
+    # 4. 과제 부분 - 특정 게시글에 포함된 모든 comment를 조회하는 api
+@require_http_methods(["GET"])
+def post_comments(request, post_id):
+
+    # post_id에 해당하는 단일 게시글 조회
+    if request.method == "GET":
+        # 특정 post_id에 해당하는 게시글이 존재하는지 여부를 확인하기 위해
+        post = get_object_or_404(Post, pk=post_id)
+
+        # 해당 게시글에 연결된 모든 comment 조회
+        comments = Comment.objects.filter(post_id = post)
+
+        comments_json = [
+            {
+                "comment_id" : comment.comment_id,
+                "comment_name" : comment.comment_name,
+                "comment_content": comment.comment_content,
+            }
+            for comment in comments
+        ]
+
+        return JsonResponse({
+            'status': 200,
+            'message': f'게시글 ID {post_id}에 포함된 댓글 조회 성공',
+            'data': comments_json
+        })
+    

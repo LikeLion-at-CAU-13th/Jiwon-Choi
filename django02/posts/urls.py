@@ -15,5 +15,6 @@ urlpatterns = [
 
     # 5주차 2개
     path('', post_list, name="post_list"),
-    path('<int:post_id>/', post_detail, name='post_detail') #Post 단일 조회
+    path('<int:post_id>/', post_detail, name='post_detail'), #Post 단일 조회
+    path('<int:post_id>/comments/', post_comments, name='post_comments'), #Post 단일 조회
 ]
