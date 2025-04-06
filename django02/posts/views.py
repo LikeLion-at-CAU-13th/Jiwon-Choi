@@ -115,7 +115,7 @@ def post_list(request):
 
 # 3. 단일 post 조회 - post id가 필요함
 # READ - "GET", UPDATE - "PATCH", DELETE - "DELETE" 
-@require_http_methods(["GET", "PATCH"])
+@require_http_methods(["GET", "PATCH", "DELETE"])
     # 매개변수로 id 받는다
 def post_detail(request, post_id):
 
@@ -167,4 +167,15 @@ def post_detail(request, post_id):
             'status': 200,
             'message': '게시글 수정 성공',
             'data': update_post_json
+        })
+    
+    # DELETE 부분
+    if request.method == "DELETE":
+        delete_post = get_object_or_404(Post, pk=post_id)
+        delete_post.delete()
+
+        return JsonResponse({
+                'status': 200,
+                'message': '게시글 삭제 성공',
+                'data': None
         })
