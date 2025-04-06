@@ -48,7 +48,8 @@ def get_post_detail(reqeust, id):
 import json
 
 # 함수 데코레이터, 특정 http method만 허용
-@require_http_methods(["POST"])
+# 원래는 "POST"만 있었고, READ 기능을 위해 "GET"을 추가했음
+@require_http_methods(["POST", "GET"])
 def post_list(request):
     
     if request.method == "POST":
@@ -83,4 +84,28 @@ def post_list(request):
             'status': 200,
             'message': '게시글 생성 성공',
             'data': new_post_json
+        })
+    
+    # GET 부분 추가 코드
+    # 게시글 전체 조회
+    if request.method == "GET":
+        post_all = Post.objects.all()
+    
+		# 각 데이터를 Json 형식으로 변환하여 리스트에 저장
+        post_json_all = []
+        
+        for post in post_all:
+            post_json = {
+                "id": post.id,
+                "title" : post.title,
+                "content": post.content,
+                "status": post.status,
+                "user": post.user.id
+            }
+            post_json_all.append(post_json)
+
+        return JsonResponse({
+            'status': 200,
+            'message': '게시글 목록 조회 성공',
+            'data': post_json_all
         })
