@@ -45,7 +45,8 @@ def get_post_detail(reqeust, id):
 #http://127.0.0.1:8000/1 postman에서 확인하기
 
 # 5주 추가
-import json
+# 1. Post 부분... create.
+# import json
 
 # 함수 데코레이터, 특정 http method만 허용
 # 원래는 "POST"만 있었고, READ 기능을 위해 "GET"을 추가했음
@@ -86,7 +87,7 @@ def post_list(request):
             'data': new_post_json
         })
     
-    # GET 부분 추가 코드
+    # 2. GET 부분 추가 코드
     # 게시글 전체 조회
     if request.method == "GET":
         post_all = Post.objects.all()
@@ -109,3 +110,30 @@ def post_list(request):
             'message': '게시글 목록 조회 성공',
             'data': post_json_all
         })
+    
+
+
+# 3. 단일 post 조회 - post id가 필요함
+@require_http_methods(["GET"])
+    # 매개변수로 id 받는다
+def post_detail(request, post_id):
+
+    # post_id에 해당하는 단일 게시글 조회
+    if request.method == "GET":
+        # ORM이 찾아서 리턴함
+        post = get_object_or_404(Post, pk=post_id)
+
+        post_json = {
+            "id": post.id,
+            "title": post.title,
+            "content": post.content,
+            "status": post.status,
+            "user": post.user.id,
+        }
+        
+        return JsonResponse({
+            'status': 200,
+            'message': '게시글 단일 조회 성공',
+            'data': post_json
+        })
+    
