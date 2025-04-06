@@ -114,7 +114,8 @@ def post_list(request):
 
 
 # 3. 단일 post 조회 - post id가 필요함
-@require_http_methods(["GET"])
+# READ - "GET", UPDATE - "PATCH", DELETE - "DELETE" 
+@require_http_methods(["GET", "PATCH"])
     # 매개변수로 id 받는다
 def post_detail(request, post_id):
 
@@ -137,3 +138,33 @@ def post_detail(request, post_id):
             'data': post_json
         })
     
+
+    # UPDATE - PATCH 부분
+    if request.method == "PATCH":
+        body = json.loads(request.body.decode('utf-8'))
+        
+        update_post = get_object_or_404(Post, pk=post_id)
+
+        if 'title' in body:
+            update_post.title = body['title']
+        if 'content' in body:
+            update_post.content = body['content']
+        if 'status' in body:
+            update_post.status = body['status']
+    
+        
+        update_post.save()
+
+        update_post_json = {
+            "id": update_post.id,
+            "title" : update_post.title,
+            "content": update_post.content,
+            "status": update_post.status,
+            "user": update_post.user.id,
+        }
+
+        return JsonResponse({
+            'status': 200,
+            'message': '게시글 수정 성공',
+            'data': update_post_json
+        })
