@@ -208,3 +208,34 @@ def post_comments(request, post_id):
             'data': comments_json
         })
     
+
+# 5. 과제 부분 - 카테고리별로
+@require_http_methods(["GET"])
+def category_posts(request, cat_id):
+    # 특정 카테고리가 존재하는지 확인하는 부분
+    category = get_object_or_404(Category, pk=cat_id)
+
+    # 해당 카테고리에 속한 게시글 필터링, 그리고 최신 작성 순으로 정렬
+    posts = Post.objects.filter(
+        postcategory__cat_id=category  # PostCategory를 통해 카테고리 필터링
+        # postcategory는 Post 모델에서 PostCategory로의 역참조 관계임
+        # postcategory__cat_id=category 는 해당 카테고리(cat_id)에 연결된 모든 Post를 필터링함
+    ).order_by('-created') # 최신순 정렬 (내림차순 정렬)
+
+    # 게시글 데이터를 JSON 형식으로 변환
+    posts_json_all = []
+    for post in posts:
+        post_json = {
+            "id": post.id,
+            "title": post.title,
+            "content": post.content,
+            "status": post.status,
+            "user": post.user.id,
+        }
+        posts_json_all.append(post_json)
+
+    return JsonResponse({
+        'status': 200,
+        'message': f'카테고리 ID {cat_id}에 해당하는 게시글 조회 성공',
+        'data': posts_json_all
+    })
