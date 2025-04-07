@@ -191,7 +191,10 @@ def post_comments(request, post_id):
         post = get_object_or_404(Post, pk=post_id)
 
         # 해당 게시글에 연결된 모든 comment 조회
-        comments = Comment.objects.filter(post_id = post)
+        # comments = Comment.objects.filter(post_id = post)
+        # post_id로 필드 지정 시 ORM이 자동으로 Comment.post.id 필드를 기준으로 입력값 비교해줌
+        # 위와 같이 적어도 ORM이 자동으로 변환해주지만 가독성 측면에서 아래와 같이 코드 수정함
+        comments = Comment.objects.filter(post_id = post_id)
 
         comments_json = [
             {
