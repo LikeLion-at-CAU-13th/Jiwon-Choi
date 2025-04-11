@@ -79,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'posts.middleware.RequestLoggingMiddleware',  # 커스텀 미들웨어 추가 
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -137,7 +138,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
@@ -169,3 +170,51 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+
+#logging 부분
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    #formatter : 로그 메시지의 출력 형식 정의하는 부분
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} {levelname} {method} {message}',
+            'style': '{',
+        },
+        'error_formatter': {
+            'format': '{asctime} {levelname} {pathname} {lineno} {message}',
+            'style': '{',
+        }
+    },
+    #handlers : 로그 메시지 처리, 저장하는 방식 정의하는 부분
+    'handlers': {
+        'request_handler': {
+            #INFO 레벨 이상은 requests.log에 저장
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'requests.log',  #여기에 저장
+            'formatter': 'verbose' #위에서 만든 vervoes 포맷을 사용한다는 뜻
+        },
+        'error_handler': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': 'errors.log',
+            'formatter': 'error_formatter' 
+        },
+    },
+    #loggers : 특정 이름의 로거에 대해 핸들러와 레벨 지정하는 부분
+    'loggers': {
+        # django.request : HTTP 요청 관련 로그 처리. 위의 request_handler 핸들러 사용함
+        'django.request': {
+            'handlers': ['request_handler'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['error_handler'],
+            'level': 'WARNING',
+            #propagate가 true인 경우는 상위 로거로 로그 메시지를 전달하고, false인 경우 현재 로거에서만 처리됨
+            'propagate': True,
+        },
+    }
+}
