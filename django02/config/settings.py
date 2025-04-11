@@ -40,7 +40,9 @@ SECRET_KEY = get_secret("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+# 06  수정시작
+# 원래는 방금 발급받은 탄력적 ip 주소만 넣는 게 좋음
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -62,13 +64,14 @@ PROJECT_APPS = [
 ]
 
 THIRD_PARTY_APPS = [
-
+    "corsheaders",
 ]
 
 INSTALLED_APPS = DJANGO_APPS + PROJECT_APPS + THIRD_PARTY_APPS
 
 
 MIDDLEWARE = [
+    'corsheaders.middleware.CorsMiddleware', # 반드시 가장 위쪽에 추가
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
@@ -76,6 +79,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'posts.middleware.RequestLoggingMiddleware',  # 커스텀 미들웨어 추가 
 ]
 
 ROOT_URLCONF = 'config.urls'
@@ -134,7 +138,7 @@ AUTH_PASSWORD_VALIDATORS = [
 
 LANGUAGE_CODE = 'en-us'
 
-TIME_ZONE = 'UTC'
+TIME_ZONE = 'Asia/Seoul'
 
 USE_I18N = True
 
@@ -153,3 +157,64 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 #여기 추가함
 AUTH_USER_MODEL = 'accounts.User'
+
+# 인증 관련 요청(쿠키, 세션 등)을 허용
+# 예를 들어 브라우저가 백엔드 서버로 쿠키를 전송하거나, 백엔드에서 쿠키를 응답으로 보낼 수 있음
+CORS_ALLOW_CREDENTIALS = True
+
+# 서버로 요청 보낼 수 있는 도메인들 정의
+# 여기에서의 localhost는 EC2 인스턴스의 로컬환경이 아니라 프론트엔드 개발 로컬 환경 의미
+# 3000 포트는 프론트엔드 React 애플리케이션의 포트 번호
+# 추후 프론트엔드에서 웹 페이지 배포 후 도메인 매핑했다면 해당 도메인 추가 필요
+CORS_ALLOWED_ORIGINS = [ 
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
+]
+
+#logging 부분
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    #formatter : 로그 메시지의 출력 형식 정의하는 부분
+    'formatters': {
+        'verbose': {
+            'format': '{asctime} {levelname} {method} {message}',
+            'style': '{',
+        },
+        'error_formatter': {
+            'format': '{asctime} {levelname} {pathname} {lineno} {message}',
+            'style': '{',
+        }
+    },
+    #handlers : 로그 메시지 처리, 저장하는 방식 정의하는 부분
+    'handlers': {
+        'request_handler': {
+            #INFO 레벨 이상은 requests.log에 저장
+            'level': 'INFO',
+            'class': 'logging.FileHandler',
+            'filename': 'requests.log',  #여기에 저장
+            'formatter': 'verbose' #위에서 만든 vervoes 포맷을 사용한다는 뜻
+        },
+        'error_handler': {
+            'level': 'WARNING',
+            'class': 'logging.FileHandler',
+            'filename': 'errors.log',
+            'formatter': 'error_formatter' 
+        },
+    },
+    #loggers : 특정 이름의 로거에 대해 핸들러와 레벨 지정하는 부분
+    'loggers': {
+        # django.request : HTTP 요청 관련 로그 처리. 위의 request_handler 핸들러 사용함
+        'django.request': {
+            'handlers': ['request_handler'],
+            'level': 'INFO',
+            'propagate': False,
+        },
+        'django': {
+            'handlers': ['error_handler'],
+            'level': 'WARNING',
+            #propagate가 true인 경우는 상위 로거로 로그 메시지를 전달하고, false인 경우 현재 로거에서만 처리됨
+            'propagate': True,
+        },
+    }
+}
