@@ -13,9 +13,13 @@ urlpatterns = [
     
     # path('<int:id>', get_post_detail)
 
-    # 5주차 2개
-    path('', post_list, name="post_list"),
-    path('<int:post_id>/', post_detail, name='post_detail'), #Post 단일 조회
-    path('<int:post_id>/comments/', post_comments, name='post_comments'), #comment 검색 부분
-    path('category/<int:cat_id>/', category_posts, name='category_posts'), #category별로
+    # # 5주차 2개
+    # path('', post_list, name="post_list"),
+    # path('<int:post_id>/', post_detail, name='post_detail'), #Post 단일 조회
+    # path('<int:post_id>/comments/', post_comments, name='post_comments'), #comment 검색 부분
+    # path('category/<int:cat_id>/', category_posts, name='category_posts'), #category별로
+
+    path('', PostList.as_view()), # post 전체 조회
+    path('<int:post_id>/', PostDetail.as_view()), # post 개별 조회
+    path('<int:post_id>/comments/', PostComments.as_view(), name='post_comments'),
 ]

@@ -9,6 +9,14 @@ from .models import * # 4주? 추가
 # 5주 추가
 import json
 
+from .serializers import PostSerializer, CommentSerializer
+
+# APIView를 사용하기 위해 import
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import status
+from django.http import Http404
+
 # Create your views here.
 
 def django_review(request):
@@ -242,3 +250,49 @@ def category_posts(request, cat_id):
         'message': f'카테고리 ID {cat_id}에 해당하는 게시글 조회 성공',
         'data': posts_json_all
     })
+
+# 9주차 추가
+
+class PostList(APIView):
+    def post(self, request, format=None):
+        serializer = PostSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED) # 유효성 검사 통과 성공
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) # 유효성 검사 통과 실패
+    
+
+    def get(self, request, format=None):
+        posts = Post.objects.all()
+		# 많은 post들을 받아오려면 (many=True) 써줘야 한다!
+        serializer = PostSerializer(posts, many=True)
+        return Response(serializer.data)
+    
+class PostDetail(APIView):
+    def get(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        serializer = PostSerializer(post)
+        return Response(serializer.data)
+    
+    # patch에서 put으로 변경한 이유 : put과 patch의 차이 때문!!
+
+    def put(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        serializer = PostSerializer(post, data=request.data)
+        if serializer.is_valid(): # update이니까 유효성 검사 필요
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    def delete(self, request, post_id):
+        post = get_object_or_404(Post, id=post_id)
+        post.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+# 7주차 DRF API 과제 - comment를 CBV로 구현하기
+class PostComments(APIView):
+    def get(self, request, post_id):
+        comments = Comment.objects.filter(post_id=post_id)
+        serializer = CommentSerializer(comments, many=True)
+        return Response(serializer.data)
