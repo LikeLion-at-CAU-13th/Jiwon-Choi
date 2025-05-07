@@ -17,6 +17,9 @@ from rest_framework.response import Response
 from rest_framework import status
 from django.http import Http404
 
+# 10주차
+from rest_framework.permissions import IsAuthenticatedOrReadOnly
+
 # Create your views here.
 
 def django_review(request):
@@ -269,6 +272,9 @@ class PostList(APIView):
         return Response(serializer.data)
     
 class PostDetail(APIView):
+    # 10주차 추가
+    permission_classes = [IsAuthenticatedOrReadOnly]
+
     def get(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
         serializer = PostSerializer(post)
