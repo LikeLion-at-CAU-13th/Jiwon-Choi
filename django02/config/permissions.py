@@ -7,7 +7,7 @@ class TimeRestrictedPermission(BasePermission):
 
 def has_permission(self, request, view):
         now = timezone.localtime().time()
-        
+
         if time(22, 0) <= now or now <= time(7, 0):
             return False
         return True
@@ -16,7 +16,7 @@ class IsOwnerOrReadOnly(BasePermission):
     message = "작성자만 수정할 수 있습니다."
 
     def has_object_permission(self, request, view, obj):
-        print(f"request.user: {request.user} / obj.user: {obj.user}")
+        # print(f"request.user: {request.user} / obj.user: {obj.user}")
         if request.method in SAFE_METHODS:
             return True
         return obj.user == request.user
