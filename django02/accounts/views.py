@@ -6,6 +6,9 @@ from rest_framework.response import Response
 from .serializers import *
 from rest_framework import status
 
+from rest_framework.permissions import IsAuthenticated
+from django.contrib.auth import logout
+
 class RegisterView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
@@ -68,9 +71,6 @@ class AuthView(APIView):
         # 유효성 검사 실패 시 오류 반환
         else:
             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-from rest_framework.permissions import IsAuthenticated
-from django.contrib.auth import logout
 
 class LogoutView(APIView):
     permission_classes = [IsAuthenticated]
