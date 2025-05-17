@@ -4,4 +4,13 @@ from django.contrib.auth.models import AbstractUser
 # Create your models here.
 class User(AbstractUser):
     pass
-#지금 당장은 새로운 필드를 추가하지 않을 예정이라 pass로 둠
+
+    # 모델 함수
+    @staticmethod
+    def get_user_by_username(username):
+        try:
+            return User.objects.get(username=username)
+        except Exception:
+            return None
+        
+
