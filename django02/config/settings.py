@@ -16,6 +16,10 @@ from django.core.exceptions import ImproperlyConfigured
 
 from datetime import timedelta
 
+# 12주차 추가
+import pymysql
+pymysql.install_as_MySQLdb()
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -256,3 +260,32 @@ SIMPLE_JWT = {
 #django-allauth 라이브러리에서 사용하는 옵션
 ACCOUNT_LOGIN_METHODS = {'email'}                  # 로그인 방식 설정
 ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*']    # 회원가입 시 필수 입력 필드 설정
+
+#12주차 IAM
+
+DB_PW = get_secret("DB_PW")
+
+# 로컬용이었음!
+# DATABASES = {
+# 	'default': {
+# 		'ENGINE': 'django.db.backends.mysql',
+# 		'NAME': 'likelion13th',
+# 		'USER': 'root', # root로 접속하여 DB를 만들었다면 'root'
+# 		'PASSWORD': DB_PW, # 비밀번호는 secrets.json에 저장
+# 		'HOST': 'localhost',
+# 		'PORT': '3306',
+# 	}
+# }
+
+
+# 원격 연결용
+DATABASES = {
+	'default': {
+		'ENGINE': 'django.db.backends.mysql',
+		'NAME': "likelion13th",
+		'USER': "admin", # aws에서 만든 사용자명
+		'PASSWORD': DB_PW, # 비밀번호는 secrets.json에 저장
+		'HOST': "127.0.0.1", #로컬으로 연결하는 이유 : ssh를 사용하는거라서 ... 포트를 하나 더 여는거...? @@
+		'PORT': '3307', # 터널에서 연결할 로컬 포트
+	}
+}
