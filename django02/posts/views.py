@@ -455,19 +455,27 @@ class PostComments(APIView):
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
     
+# Swagger 내에서 form-data 형식으로 파일 업로드 테스트 위해 추가
+from rest_framework.parsers import MultiPartParser
 
 class ImageUploadView(APIView):
+
+    parser_classes = [MultiPartParser]  # 이 부분 추가!
+
     @swagger_auto_schema(
         operation_summary="이미지 파일 업로드",
         operation_description="이미지 파일을 업로드하고, 업로드된 이미지의 URL을 반환합니다. 업로드된 파일은 원본 파일명 뒤에 고유 식별자를 덧붙여 저장됩니다. 따라서 동명 파일의 중복 저장이 가능합니다.",
-        request_body=openapi.Schema(
-        type=openapi.TYPE_OBJECT,
-        required=["image"],
-        properties={
-            "image": openapi.Schema(type=openapi.TYPE_FILE, description="업로드할 이미지 파일"),
-        },
-    ),
-    responses={201: ImageSerializer, 400: "이미지 파일 없음", 500: "S3 업로드 실패"},
+        #request_body 대신 manual_parameters를 사용해 파일 파라미터를 정의해아 Swagger UI에서 파일 input 나타남
+        manual_parameters=[
+            openapi.Parameter(
+                name="image",
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                description="업로드할 이미지 파일",
+                required=True,
+            ),
+        ],
+        responses={201: ImageSerializer, 400: "이미지 파일 없음", 500: "S3 업로드 실패"},
 )
     def post(self, request):
         if 'image' not in request.FILES:
