@@ -22,4 +22,7 @@ urlpatterns = [
     path('', PostList.as_view()), # post 전체 조회
     path('<int:post_id>/', PostDetail.as_view()), # post 개별 조회
     path('<int:post_id>/comments/', PostComments.as_view(), name='post_comments'),
+
+    #12주차 추가 - 이미지 업로드 api
+    path('upload/', ImageUploadView.as_view(), name='image-upload'),
 ]

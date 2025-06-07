@@ -54,3 +54,10 @@ class Comment(BaseModel):
         return self.comment_content
 
 
+# 12주차 추가 - 이미지 업로드 api
+class Image(BaseModel):
+    id = models.AutoField(primary_key=True)
+    image_url = models.URLField(max_length=500)  # S3에 업로드된 이미지의 URL 저장
+
+    def __str__(self):
+        return f"Image {self.id}"
