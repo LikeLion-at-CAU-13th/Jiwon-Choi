@@ -20,3 +20,13 @@ class CommentSerializer(serializers.ModelSerializer):
 		# 모델에서 어떤 필드를 가져올지
 		# 전부 가져오고 싶을 때 아래처럼
     fields = "__all__"
+
+
+#12주차 추가 - 이미지 업로드 api
+from .models import Image
+class ImageSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Image
+        fields = "__all__"
+
+  

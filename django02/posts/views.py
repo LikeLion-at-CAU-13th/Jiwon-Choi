@@ -259,59 +259,258 @@ from config.permissions import TimeRestrictedPermission, IsOwnerOrReadOnly
 
 # 9주차 추가
 
-class PostList(APIView):
-    permission_classes = [IsAuthenticatedOrReadOnly, TimeRestrictedPermission]
+# class PostList(APIView):
+#     permission_classes = [IsAuthenticatedOrReadOnly, TimeRestrictedPermission]
 
+#     def post(self, request, format=None):
+#         serializer = PostSerializer(data=request.data)
+#         if serializer.is_valid():
+#             serializer.save()
+#             return Response(serializer.data, status=status.HTTP_201_CREATED) # 유효성 검사 통과 성공
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) # 유효성 검사 통과 실패
+    
+
+#     def get(self, request, format=None):
+#         posts = Post.objects.all()
+# 		# 많은 post들을 받아오려면 (many=True) 써줘야 한다!
+#         serializer = PostSerializer(posts, many=True)
+#         return Response(serializer.data)
+    
+# class PostDetail(APIView):
+#     # 10주차 추가
+#     permission_classes = [IsAuthenticatedOrReadOnly, TimeRestrictedPermission, IsOwnerOrReadOnly]
+
+#     def get_object(self, post_id):
+#         post = get_object_or_404(Post, id=post_id)
+#         self.check_object_permissions(self.request, post)
+#         return post
+    
+#     def get(self, request, post_id):
+#         post = get_object_or_404(Post, id=post_id)
+#         serializer = PostSerializer(post)
+#         return Response(serializer.data)
+    
+#     # patch에서 put으로 변경한 이유 : put과 patch의 차이 때문!!
+
+#     def put(self, request, post_id):
+#         post = self.get_object(post_id)
+#         # post = get_object_or_404(Post, id=post_id)
+#         serializer = PostSerializer(post, data=request.data)
+#         if serializer.is_valid(): # update이니까 유효성 검사 필요
+#             serializer.save()
+#             return Response(serializer.data)
+#         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+#     def delete(self, request, post_id):
+#         post = get_object_or_404(Post, id=post_id)
+#         post.delete()
+#         return Response(status=status.HTTP_204_NO_CONTENT)
+    
+
+# # 7주차 DRF API 과제 - comment를 CBV로 구현하기
+# class PostComments(APIView):
+#     permission_classes = [TimeRestrictedPermission]
+
+#     def get(self, request, post_id):
+#         comments = Comment.objects.filter(post_id=post_id)
+#         serializer = CommentSerializer(comments, many=True)
+#         return Response(serializer.data)
+    
+
+#12주차 추가 - 이미지 업로드 api
+from django.core.files.storage import default_storage  
+from .serializers import ImageSerializer
+from django.conf import settings
+import boto3
+
+# 과제 위해 uuid 추가함
+import uuid
+import os
+
+# class ImageUploadView(APIView):
+#     def post(self, request):
+#         if 'image' not in request.FILES:
+#             return Response({"error": "No image file"}, status=status.HTTP_400_BAD_REQUEST)
+
+#         image_file = request.FILES['image']
+
+#         s3_client = boto3.client(
+#             "s3",
+#             aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+#             aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+#             region_name=settings.AWS_REGION
+#         )
+
+#         # S3에 파일 저장 - 중복 업로드 위해 수정함!
+#         original_filename, extension = os.path.splitext(image_file.name) #원본 파일명과 확장자 명 따로 저장
+#         own_filename = f"{original_filename}_{uuid.uuid4().hex}{extension}" #.hex 하면 하이픈 없는 32자리 고유값 만든다
+#         file_path = f"uploads/{own_filename}"
+#         # S3에 파일 업로드
+#         try:
+#             s3_client.put_object(
+#                 Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+#                 Key=file_path,
+#                 Body=image_file.read(),
+#                 ContentType=image_file.content_type,
+#             )
+#         except Exception as e:
+#             return Response({"error": f"S3 Upload Failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+#         # 업로드된 파일의 URL 생성
+#         image_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.{settings.AWS_REGION}.amazonaws.com/{file_path}"
+
+#         # DB에 저장
+#         image_instance = Image.objects.create(image_url=image_url)
+#         serializer = ImageSerializer(image_instance)
+
+
+#         return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
+
+# 12주차 swagger
+from drf_yasg.utils import swagger_auto_schema
+from drf_yasg import openapi
+
+class PostList(APIView):
+    @swagger_auto_schema(
+        operation_summary="게시글 생성",
+        operation_description="새로운 게시글을 생성합니다.",
+        request_body=PostSerializer,
+        responses={201: PostSerializer, 400: "잘못된 요청"}
+    )
     def post(self, request, format=None):
         serializer = PostSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save()
-            return Response(serializer.data, status=status.HTTP_201_CREATED) # 유효성 검사 통과 성공
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST) # 유효성 검사 통과 실패
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-
+    @swagger_auto_schema(
+        operation_summary="게시글 목록 조회",
+        operation_description="모든 게시글을 조회합니다.",
+        responses={200: PostSerializer(many=True)}
+    )
     def get(self, request, format=None):
         posts = Post.objects.all()
-		# 많은 post들을 받아오려면 (many=True) 써줘야 한다!
+	    # 많은 post들을 받아오려면 (many=True) 써줘야 한다!
         serializer = PostSerializer(posts, many=True)
         return Response(serializer.data)
     
+#12주차 과제 - post 나머지 swagger
 class PostDetail(APIView):
-    # 10주차 추가
-    permission_classes = [IsAuthenticatedOrReadOnly, TimeRestrictedPermission, IsOwnerOrReadOnly]
-
+    # permission_classes = [IsAuthenticatedOrReadOnly, TimeRestrictedPermission, IsOwnerOrReadOnly]
+    
     def get_object(self, post_id):
         post = get_object_or_404(Post, id=post_id)
         self.check_object_permissions(self.request, post)
         return post
-    
+
+
+    @swagger_auto_schema(
+        operation_summary="특정 게시글 조회",
+        operation_description="post_id에 해당하는 게시글의 내용들을 반환합니다.",
+        responses={200: PostSerializer}
+    )
     def get(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
         serializer = PostSerializer(post)
         return Response(serializer.data)
     
-    # patch에서 put으로 변경한 이유 : put과 patch의 차이 때문!!
 
+    @swagger_auto_schema(
+        operation_summary="게시글 수정",
+        operation_description="post_id에 해당하는 게시글을 수정합니다.",
+        request_body=PostSerializer,
+        responses={200: PostSerializer, 400: "잘못된 요청"}
+    )
     def put(self, request, post_id):
         post = self.get_object(post_id)
-        # post = get_object_or_404(Post, id=post_id)
         serializer = PostSerializer(post, data=request.data)
-        if serializer.is_valid(): # update이니까 유효성 검사 필요
+        if serializer.is_valid():
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
+
+    @swagger_auto_schema(
+        operation_summary="게시글 삭제",
+        operation_description="post_id에 해당하는 게시글을 삭제합니다.",
+        responses={204: "삭제 성공", 404: "게시글 없음"}
+    )
     def delete(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
         post.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
     
-
-# 7주차 DRF API 과제 - comment를 CBV로 구현하기
 class PostComments(APIView):
-    permission_classes = [TimeRestrictedPermission]
+    # permission_classes = [TimeRestrictedPermission]
 
+    @swagger_auto_schema(
+        operation_summary="게시글의 댓글 목록 조회",
+        operation_description="post_id에 해당하는 게시글에 작성된 모든 댓글을 반환합니다.",
+        responses={200: CommentSerializer(many=True)}
+    )
     def get(self, request, post_id):
         comments = Comment.objects.filter(post_id=post_id)
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
+    
+# Swagger 내에서 form-data 형식으로 파일 업로드 테스트 위해 추가
+from rest_framework.parsers import MultiPartParser
+
+class ImageUploadView(APIView):
+
+    parser_classes = [MultiPartParser]  # 이 부분 추가!
+
+    @swagger_auto_schema(
+        operation_summary="이미지 파일 업로드",
+        operation_description="이미지 파일을 업로드하고, 업로드된 이미지의 URL을 반환합니다. 업로드된 파일은 원본 파일명 뒤에 고유 식별자를 덧붙여 저장됩니다. 따라서 동명 파일의 중복 저장이 가능합니다.",
+        #request_body 대신 manual_parameters를 사용해 파일 파라미터를 정의해아 Swagger UI에서 파일 input 나타남
+        manual_parameters=[
+            openapi.Parameter(
+                name="image",
+                in_=openapi.IN_FORM,
+                type=openapi.TYPE_FILE,
+                description="업로드할 이미지 파일",
+                required=True,
+            ),
+        ],
+        responses={201: ImageSerializer, 400: "이미지 파일 없음", 500: "S3 업로드 실패"},
+)
+    def post(self, request):
+        if 'image' not in request.FILES:
+            return Response({"error": "No image file"}, status=status.HTTP_400_BAD_REQUEST)
+
+        image_file = request.FILES['image']
+
+        s3_client = boto3.client(
+            "s3",
+            aws_access_key_id=settings.AWS_ACCESS_KEY_ID,
+            aws_secret_access_key=settings.AWS_SECRET_ACCESS_KEY,
+            region_name=settings.AWS_REGION
+        )
+
+        # S3에 파일 저장 - 중복 업로드 위해 수정함!
+        original_filename, extension = os.path.splitext(image_file.name) #원본 파일명과 확장자 명 따로 저장
+        own_filename = f"{original_filename}_{uuid.uuid4().hex}{extension}" #.hex 하면 하이픈 없는 32자리 고유값 만든다
+        file_path = f"uploads/{own_filename}"
+        # S3에 파일 업로드
+        try:
+            s3_client.put_object(
+                Bucket=settings.AWS_STORAGE_BUCKET_NAME,
+                Key=file_path,
+                Body=image_file.read(),
+                ContentType=image_file.content_type,
+            )
+        except Exception as e:
+            return Response({"error": f"S3 Upload Failed: {str(e)}"}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+        # 업로드된 파일의 URL 생성
+        image_url = f"https://{settings.AWS_STORAGE_BUCKET_NAME}.s3.{settings.AWS_REGION}.amazonaws.com/{file_path}"
+
+        # DB에 저장
+        image_instance = Image.objects.create(image_url=image_url)
+        serializer = ImageSerializer(image_instance)
+
+
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
