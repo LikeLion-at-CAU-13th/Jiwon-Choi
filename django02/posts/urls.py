@@ -12,7 +12,7 @@ urlpatterns = [
     # int:id는 변화할 수 있는 값들. 1번을 넣으면 1번에 해당하는 게시글이 반환되게 하는 역할을 함
     
     # 14주차에 아래 코드 잠깐 살림 (근데 ~>/ <- 이거 추가해야했었네)
-    path('<int:id>', get_post_detail),
+    # path('<int:id>', get_post_detail),
 
     # # 5주차 2개
     # path('', post_list, name="post_list"),
@@ -22,7 +22,7 @@ urlpatterns = [
 
     path('', PostList.as_view()), # post 전체 조회
     # 14주차에 아래 코드 잠깐 죽임
-    # path('<int:post_id>/', PostDetail.as_view()), # post 개별 조회
+    path('<int:post_id>/', PostDetail.as_view()), # post 개별 조회
     path('<int:post_id>/comments/', PostComments.as_view(), name='post_comments'),
 
     #12주차 추가 - 이미지 업로드 api

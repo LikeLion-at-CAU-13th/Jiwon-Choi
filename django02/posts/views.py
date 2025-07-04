@@ -403,10 +403,11 @@ class PostList(APIView):
     )
     def post(self, request, format=None):
         serializer = PostSerializer(data=request.data)
-        if serializer.is_valid():
+        # 14주차 - 유효성 검사를 하는 과정에서 예외 발생할 수 있도록 is_valid의 raise_exception을 True로 설정
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @swagger_auto_schema(
         operation_summary="게시글 목록 조회",

@@ -253,6 +253,8 @@ REST_FRAMEWORK = {
     'DEFAULT_AUTHENTICATION_CLASSES': (
         'rest_framework_simplejwt.authentication.JWTAuthentication',
     ),
+    # 커스텀 예외 처리 함수 지정
+    'EXCEPTION_HANDLER': 'config.custom_exception_handler.custom_exception_handler',
 }
 
 REST_USE_JWT = True
