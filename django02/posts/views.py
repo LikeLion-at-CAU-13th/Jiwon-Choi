@@ -479,6 +479,21 @@ class PostComments(APIView):
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
     
+    # 14주차 과제 2 - 댓글 15글자 이상... 댓글 생성 기능 추가
+    @swagger_auto_schema(
+        operation_summary="게시글에 댓글 작성",
+        operation_description="post_id에 해당하는 게시글에 댓글을 작성합니다.",
+        request_body=CommentSerializer,
+        responses={201: CommentSerializer, 400: "잘못된 요청"}
+    )
+    def post(self, request, post_id):
+        data = request.data.copy()
+        data['post_id'] = post_id
+        serializer = CommentSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+    
 # Swagger 내에서 form-data 형식으로 파일 업로드 테스트 위해 추가
 from rest_framework.parsers import MultiPartParser
 

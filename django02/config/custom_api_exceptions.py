@@ -22,3 +22,9 @@ class ConflictException(BaseCustomAPIException):
 class PostConflictException(ConflictException):
     default_detail = "A conflict occurred with the post."
     default_code = "POST-CONFLICT"
+
+# 14주차 과제 - user 당 1개의 게시글 부분
+class DailyPostLimitException(APIException):
+    status_code = 429 # 이게 Too Many Requests
+    default_detail = "Only one post can be posted per user per day."
+    default_code = "DAILY_POST_LIMIT"
