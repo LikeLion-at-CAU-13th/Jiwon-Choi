@@ -105,6 +105,9 @@ MIDDLEWARE = [
 
     #11주차 OAuth 추가
     "allauth.account.middleware.AccountMiddleware",
+
+    # 14주차 예외처리
+    "config.middlewares.ExceptionHandlerMiddleware",  # 커스텀 예외 처리 미들웨어 추가
 ]
 
 ROOT_URLCONF = 'config.urls'

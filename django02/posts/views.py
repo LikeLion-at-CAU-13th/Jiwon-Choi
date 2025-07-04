@@ -23,6 +23,9 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 # 10주차 과제
 from config.permissions import TimeRestrictedPermission, IsOwnerOrReadOnly
 
+# 14주차 커스텀 예외처리
+from config.custom_exceptions import PostNotFoundException
+
 # # Create your views here.
 
 # def django_review(request):
@@ -40,6 +43,8 @@ from config.permissions import TimeRestrictedPermission, IsOwnerOrReadOnly
 
 # # Create your views here.
 # # GET을 허용해서... @
+
+#14주에 아래 코드 잠깐 다시 살렸음! - 내장
 # @require_http_methods(["GET"])
 # # post의 내용들을 가져오게 json을 구성
 # def get_post_detail(reqeust, id):
@@ -55,6 +60,24 @@ from config.permissions import TimeRestrictedPermission, IsOwnerOrReadOnly
 #     return JsonResponse({
 #         "status" : 200,
 #         "data": post_detail_json})
+
+# 14주차 - 커스텀 예외 처리
+@require_http_methods(["GET"])
+def get_post_detail(reqeust, id):
+    try:
+        post = Post.objects.get(id=id)
+        post_detail_json = {
+            "id" : post.id,
+            "title" : post.title,
+            "content" : post.content,
+            "status" : post.status,
+            "user" : post.user.username
+        }
+        return JsonResponse({
+            "status" : 200,
+            "data": post_detail_json})
+    except Post.DoesNotExist:
+        raise PostNotFoundException
 
 #http://127.0.0.1:8000/1 postman에서 확인하기
 
