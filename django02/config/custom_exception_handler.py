@@ -23,8 +23,8 @@ def _create_unified_response(response):
     # 14주차 과제 1 - 필드값 전달 X 시 어떤 필드에 어떤 문제가 있는지 알 수 있게
     if 'errors' in error_detail:
         result['error']['errors'] = error_detail['errors']
-    if 'field_details' in error_detail:
-        result['error']['field_details'] = error_detail['field_details']
+    # if 'field_details' in error_detail:
+    #     result['error']['field_details'] = error_detail['field_details']
     return result
 
 def _extract_error_detail(error_data):
@@ -61,8 +61,8 @@ def _extract_error_detail(error_data):
             return {
                 'message': f"{len(field_errors)} validation errors occurred",
                 'code': 'validation_error',
-                'errors': field_errors, # 위에서 만든 것
-                'field_details': error_data # 원본 error_data 전체를 담은 dict 반환
+                'errors': field_errors#, # 위에서 만든 것
+                # 'field_details': error_data # 원본 error_data 전체를 담은 dict 반환
             }
 
     
@@ -109,8 +109,8 @@ def _extract_error_detail(error_data):
             return {
                 'message': f"{len(field_errors)} validation errors occurred",
                 'code': 'validation_error',
-                'errors': field_errors,
-                'field_details': error_data
+                'errors': field_errors #,
+                # 'field_details': error_data
             }
     
     return {

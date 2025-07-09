@@ -25,6 +25,6 @@ class PostConflictException(ConflictException):
 
 # 14주차 과제 - user 당 1개의 게시글 부분
 class DailyPostLimitException(APIException):
-    status_code = 429 # 이게 Too Many Requests
+    status_code = 400 # 429가 Too Many Requests이지만 429는 서버 과부하 막기 위한 것이라 400으로 수정
     default_detail = "Only one post can be posted per user per day."
     default_code = "DAILY_POST_LIMIT"
