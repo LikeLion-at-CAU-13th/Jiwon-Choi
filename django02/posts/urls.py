@@ -11,7 +11,8 @@ urlpatterns = [
     # 결과를 반환받기 위해 url 추가?
     # int:id는 변화할 수 있는 값들. 1번을 넣으면 1번에 해당하는 게시글이 반환되게 하는 역할을 함
     
-    # path('<int:id>', get_post_detail)
+    # 14주차에 아래 코드 잠깐 살림 (근데 ~>/ <- 이거 추가해야했었네)
+    # path('<int:id>', get_post_detail),
 
     # # 5주차 2개
     # path('', post_list, name="post_list"),
@@ -20,6 +21,7 @@ urlpatterns = [
     # path('category/<int:cat_id>/', category_posts, name='category_posts'), #category별로
 
     path('', PostList.as_view()), # post 전체 조회
+    # 14주차에 아래 코드 잠깐 죽임
     path('<int:post_id>/', PostDetail.as_view()), # post 개별 조회
     path('<int:post_id>/comments/', PostComments.as_view(), name='post_comments'),
 

@@ -23,6 +23,9 @@ from rest_framework.permissions import IsAuthenticatedOrReadOnly
 # 10주차 과제
 from config.permissions import TimeRestrictedPermission, IsOwnerOrReadOnly
 
+# 14주차 커스텀 예외처리
+from config.custom_exceptions import PostNotFoundException
+
 # # Create your views here.
 
 # def django_review(request):
@@ -40,6 +43,8 @@ from config.permissions import TimeRestrictedPermission, IsOwnerOrReadOnly
 
 # # Create your views here.
 # # GET을 허용해서... @
+
+#14주에 아래 코드 잠깐 다시 살렸음! - 내장
 # @require_http_methods(["GET"])
 # # post의 내용들을 가져오게 json을 구성
 # def get_post_detail(reqeust, id):
@@ -55,6 +60,24 @@ from config.permissions import TimeRestrictedPermission, IsOwnerOrReadOnly
 #     return JsonResponse({
 #         "status" : 200,
 #         "data": post_detail_json})
+
+# 14주차 - 커스텀 예외 처리
+@require_http_methods(["GET"])
+def get_post_detail(reqeust, id):
+    try:
+        post = Post.objects.get(id=id)
+        post_detail_json = {
+            "id" : post.id,
+            "title" : post.title,
+            "content" : post.content,
+            "status" : post.status,
+            "user" : post.user.username
+        }
+        return JsonResponse({
+            "status" : 200,
+            "data": post_detail_json})
+    except Post.DoesNotExist:
+        raise PostNotFoundException
 
 #http://127.0.0.1:8000/1 postman에서 확인하기
 
@@ -380,10 +403,11 @@ class PostList(APIView):
     )
     def post(self, request, format=None):
         serializer = PostSerializer(data=request.data)
-        if serializer.is_valid():
+        # 14주차 - 유효성 검사를 하는 과정에서 예외 발생할 수 있도록 is_valid의 raise_exception을 True로 설정
+        if serializer.is_valid(raise_exception=True):
             serializer.save()
             return Response(serializer.data, status=status.HTTP_201_CREATED)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        # return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
     @swagger_auto_schema(
         operation_summary="게시글 목록 조회",
@@ -454,6 +478,21 @@ class PostComments(APIView):
         comments = Comment.objects.filter(post_id=post_id)
         serializer = CommentSerializer(comments, many=True)
         return Response(serializer.data)
+    
+    # 14주차 과제 2 - 댓글 15글자 이상... 댓글 생성 기능 추가
+    @swagger_auto_schema(
+        operation_summary="게시글에 댓글 작성",
+        operation_description="post_id에 해당하는 게시글에 댓글을 작성합니다.",
+        request_body=CommentSerializer,
+        responses={201: CommentSerializer, 400: "잘못된 요청"}
+    )
+    def post(self, request, post_id):
+        data = request.data.copy()
+        data['post_id'] = post_id
+        serializer = CommentSerializer(data=data)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
     
 # Swagger 내에서 form-data 형식으로 파일 업로드 테스트 위해 추가
 from rest_framework.parsers import MultiPartParser
